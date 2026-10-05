@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}MFA Verification{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🔐</div>
+            <h2>MFA Verification</h2>
+            <p>Enter the 6-digit code from your authenticator app</p>
+        </div>
+
+        {% if not show_recovery %}
+        <form method="POST" action="{{ url_for('mfa.verify') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <input type="text" name="otp" class="form-control otp-input"
+                       maxlength="6" pattern="[0-9]{6}"
+                       placeholder="000000" autocomplete="one-time-code"
+                       required inputmode="numeric" autofocus>
+                <span class="form-hint">Enter the code from your authenticator app</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Verify Code</button>
+        </form>
+
+        <div class="auth-footer">
+            <p><a href="{{ url_for('mfa.verify', recovery='true') }}">Use a recovery code instead</a></p>
+        </div>
+
+        {% else %}
+
+        <form method="POST" action="{{ url_for('mfa.verify') }}" class="auth-form">
+            {{ recovery_form.hidden_tag() }}
+            <input type="hidden" name="recovery" value="true">
+            <div class="form-group">
+                <label for="recovery_code">Recovery Code</label>
+                <input type="text" name="recovery_code" class="form-control"
+                       placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off"
+                       required>
+                <span class="form-hint">Enter one of your recovery codes</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Verify Recovery Code</button>
+        </form>
+
+        <div class="auth-footer">
+            <p><a href="{{ url_for('mfa.verify') }}">Use MFA code instead</a></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

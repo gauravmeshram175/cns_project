@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Recovery Codes{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card recovery-card">
+        <div class="auth-header">
+            <div class="auth-icon">🗝️</div>
+            <h2>Your Recovery Codes</h2>
+            <p>Save these codes in a secure location</p>
+        </div>
+
+        <div class="recovery-content">
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong>
+                <ul>
+                    <li>Each code can only be used <strong>once</strong>.</li>
+                    <li>These codes will <strong>not</strong> be shown again.</li>
+                    <li>Use them if you lose access to your authenticator app.</li>
+                    <li>Store them in a secure location (e.g., password manager).</li>
+                </ul>
+            </div>
+
+            <div class="codes-list">
+                {% for code in codes %}
+                    <div class="code-item">
+                        <code>{{ code }}</code>
+                        <button type="button" class="btn btn-sm btn-ghost"
+                                onclick="copyCode('{{ code }}', this)">Copy</button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-block"
+                    onclick="copyAllCodes()">Copy All Codes</button>
+
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary btn-block">
+                    Go to Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">
+                    Sign In
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const codes = {{ codes | tojson }};
+
+function copyCode(code, btn) {
+    navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+}
+
+function copyAllCodes() {
+    navigator.clipboard.writeText(codes.join('\n')).then(() => {
+        alert('All codes copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}

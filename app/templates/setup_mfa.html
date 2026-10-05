@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Setup MFA{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card mfa-setup-card">
+        <div class="auth-header">
+            <div class="auth-icon">📱</div>
+            <h2>Setup Multi-Factor Authentication</h2>
+            <p>Scan the QR code with your authenticator app</p>
+        </div>
+
+        <div class="mfa-setup-content">
+            <div class="qr-section">
+                <p class="instruction">1. Open your authenticator app (Google Authenticator, Authy, etc.)</p>
+                <p class="instruction">2. Scan this QR code:</p>
+                <div class="qr-container">
+                    <img src="{{ qr_code }}" alt="MFA QR Code" class="qr-code">
+                </div>
+
+                <div class="manual-entry">
+                    <p class="instruction">Or enter this code manually:</p>
+                    <div class="secret-display">
+                        <code id="secret-code">{{ secret }}</code>
+                        <button type="button" class="btn btn-sm btn-secondary"
+                                onclick="copySecret()">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="verify-section">
+                <p class="instruction">3. Enter the 6-digit code from your app to verify:</p>
+                <form method="POST" action="{{ url_for('mfa.verify_setup') }}" class="auth-form">
+                    {{ form.hidden_tag() if form is defined else '' }}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <input type="text" name="otp" class="form-control otp-input"
+                               maxlength="6" pattern="[0-9]{6}"
+                               placeholder="000000" autocomplete="one-time-code"
+                               required inputmode="numeric">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Verify & Enable MFA</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copySecret() {
+    const secret = document.getElementById('secret-code').textContent;
+    navigator.clipboard.writeText(secret).then(() => {
+        const btn = event.target;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+}
+</script>
+{% endblock %}
